@@ -70,7 +70,7 @@ export async function uploadToImageKit(file: File) {
     console.error('ImageKit upload failed:', error);
     // Re-throw with more context
     if (error instanceof Error) {
-      throw new Error(`Image upload failed: ${error.message}`);
+      throw new TypeError(`Image upload failed: ${error.message}`);
     }
     throw new Error('Image upload failed: Unknown error');
   }
@@ -119,7 +119,7 @@ export async function fetchExternalImage(url: string) {
     console.error('External image fetch failed:', error);
     // Re-throw with more context
     if (error instanceof Error) {
-      throw new Error(`External image fetch failed: ${error.message}`);
+      throw new TypeError(`External image fetch failed: ${error.message}`);
     }
     throw new Error('External image fetch failed: Unknown error');
   }
