@@ -1,7 +1,6 @@
 'use client';
 
 import { Color } from '@tiptap/extension-color';
-import ImageExtension from '@tiptap/extension-image';
 import { TextStyle } from '@tiptap/extension-text-style';
 import UnderlineExtension from '@tiptap/extension-underline';
 import { EditorContent, useEditor } from '@tiptap/react';
@@ -20,16 +19,6 @@ interface RichTextEditorProps {
 
 type ImageAttributes = { src: string; alt?: string; style?: string };
 
-const ExtendedImage = ImageExtension.extend({
-  addAttributes() {
-    return {
-      src: { default: '' },
-      alt: { default: undefined },
-      style: { default: undefined },
-    };
-  },
-});
-
 export default function RichTextEditor({
   onChange,
   initialContent,
@@ -39,7 +28,6 @@ export default function RichTextEditor({
     extensions: [
       StarterKitExtension,
       UnderlineExtension,
-      ExtendedImage,
       ResizeImage,
       Color,
       TextStyle,
