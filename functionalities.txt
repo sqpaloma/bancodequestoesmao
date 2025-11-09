@@ -1,0 +1,86 @@
+Este documento tem como finalidade estabelecer o escopo inicial do projeto de desenvolvimento de um aplicativo web de Banco de Questões para uso de estudantes e profissionais da área. As informações aqui apresentadas buscam assegurar que o trabalho seja executado conforme o combinado, evitando adições de funcionalidade sem revisão contratual e garantindo a entrega das funcionalidades essenciais ao cliente.
+
+ESCOPO DO PROJETO
+O projeto consiste em criar um aplicativo web que disponibilize questões para estudantes de forma organizada, com registro de progresso, feedback imediato, área administrativa para gerenciamento do conteúdo e uma Landing Page para captação de usuários, cadastro, pagamento e redirecionamento ao aplicativo.
+
+1.	Funcionalidades Principais (Obrigatórias)
+Landing Page:
+●	Página inicial de apresentação do produto (Banco de Questões).
+●	Explicação dos benefícios e funcionalidades principais.
+
+Fluxo de Cadastro e Pagamento:
+●	Possibilidade de escolher planos de assinatura ou licenças.
+●	Integração com provedor de pagamento para concluir a assinatura.
+●	Após confirmação do pagamento, o usuário recebe acesso ao aplicativo.
+●	Caso o usuário já possua conta, poderá ir diretamente para a tela de login do aplicativo, sem precisar passar novamente pelo fluxo de pagamento.
+
+Design e Identidade Visual:
+●	Logo, cores e identidade visual serão fornecidas pelo Cliente.
+Responsividade:
+●	O aplicativo será desenvolvido como um aplicativo web responsivo, garantindo funcionamento adequado em dispositivos móveis e tablets.
+
+Autenticação de Usuário (Email/Senha):
+●	Cadastro e login de usuários.
+●	Restrição de apenas uma sessão ativa por conta. Se um novo login ocorrer, a sessão anterior é finalizada automaticamente.
+
+Organização por Módulos (Categorias):
+●	O aplicativo contará com um banco de dados de questões que poderá ser utilizado tanto por administradores quanto por usuários para a criação de módulos de estudo personalizados.
+●	Além disso, os administradores terão a possibilidade de definir módulos padrão baseados nesse banco de dados de questões.
+●	As questões possuirão tags, permitindo a organização e a customização dos módulos de forma flexível.
+●	O sistema exibirá quantas questões cada usuário já concluiu (acertou) em cada módulo, facilitando o acompanhamento do progresso
+
+Exibição e Resposta de Questões:
+●	Exibir uma questão por vez, com feedback imediato (certo/errado).
+●	Incluir explicações sobre a resposta correta e, opcionalmente, sobre as erradas.
+
+Rastreamento de Progresso:
+●	Armazenar se o usuário acertou cada questão (indicando conclusão).
+●	Exibir ao usuário quantas questões já foram finalizadas e quantas restam.
+
+Dashboard de Estatísticas:
+●	Apresentar a porcentagem de acerto do usuário.
+●	Mostrar a porcentagem de progresso no módulo atual.
+
+Área de Administração:
+●	Cadastro e edição de perguntas, respostas, categorias, módulos.
+●	Upload de imagens via CDN, com limite previsto de armazenamento (até 10 GB).
+●	Versionamento de provas (histórico e diferentes versões de questões).
+
+Integração com Provedor de Pagamento:
+●	Configuração para receber pagamentos de planos ou assinaturas (incluindo suporte na Landing Page).
+
+2.	Funcionalidades dos Módulos e Estrutura das Questões
+
+Estrutura das Questões e Módulos:
+Cada questão no banco de dados será composta por:
+●	Enunciado: Texto que apresenta a questão ao usuário.
+●	Alternativas: Opções de resposta disponíveis.
+●	Gabarito: Resposta correta da questão.
+●	Tags: Classificações que permitirão a categorização e customização das questões.
+
+Módulos Padrões:
+●	Criados pelos administradores.
+●	Disponíveis para todos os usuários.
+●	Baseados nas tags associadas às questões no banco de dados.
+
+Módulos Personalizados:
+●	Criados tanto por administradores quanto por usuários.
+●	Disponíveis apenas para o usuário que os criou (no caso de módulos personalizados criados por usuários).
+●	A criação será baseada na seleção de tags, permitindo que os módulos sejam alinhados aos interesses ou necessidades específicas de estudo do usuário.
+
+Provas Antigas:
+●	Considerados como Módulos Padrões, mas exibidos em um contexto distinto no aplicativo.
+●	Baseados em questões retiradas de exames anteriores.
+●	Seguem a mesma estrutura e funcionamento dos Módulos Padrões, com a diferença na organização e apresentação no aplicativo.
+
+Composição e Funcionamento dos Módulos:
+●	Cada módulo será composto por uma série de questões que serão apresentadas ao usuário uma a uma.
+●	À medida que o usuário responde às questões, o sistema irá marcar o progresso, atualizando a porcentagem de acertos e a porcentagem de progresso no módulo.
+●	O Dashboard de Estatísticas refletirá essas informações, proporcionando ao usuário uma visão clara de seu desempenho e progresso.
+
+Tipos de Módulo: 
+●	Estudo: Disponível para Módulos Padrões, Módulos Personalizados e Provas Antigas e permite que o usuário veja a resposta imediatamente após responder cada questão.
+●	Simulado: Disponível para Módulos Padrões, Módulos Personalizados e Provas Antigas, o usuário somente visualiza o resultado após a conclusão de todo o módulo, sem feedback imediato nas respostas individuais.
+ 
+
+
