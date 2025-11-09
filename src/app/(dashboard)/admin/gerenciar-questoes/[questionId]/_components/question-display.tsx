@@ -1,7 +1,7 @@
 'use client';
 
-import QuestionContent from '@/components/quiz/QuestionContent';
 import { Button } from '@/components/ui/button';
+import { renderContent } from '@/lib/utils/render-content';
 
 interface QuestionDisplayProps {
   question: any; // Replace with proper type when available
@@ -14,6 +14,10 @@ export function QuestionDisplay({
   onEdit,
   onBack,
 }: QuestionDisplayProps) {
+  // Convert TipTap JSON to HTML
+  const questionHtml = renderContent(JSON.parse(question.questionTextString));
+  const explanationHtml = renderContent(JSON.parse(question.explanationTextString));
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -30,7 +34,10 @@ export function QuestionDisplay({
         <div className="space-y-6">
           <div>
             <h2 className="mb-4 font-semibold">Pergunta:</h2>
-            <QuestionContent stringContent={question.questionTextString} />
+            <div
+              className="prose max-w-none break-words"
+              dangerouslySetInnerHTML={{ __html: questionHtml }}
+            />
           </div>
 
           <div>
@@ -48,11 +55,11 @@ export function QuestionDisplay({
                   >
                     <div className="flex items-center">
                       <div
-                        className={
+                        className={`break-words ${
                           index === question.correctAlternativeIndex
                             ? 'font-medium text-green-600'
                             : ''
-                        }
+                        }`}
                       >
                         {index + 1}. {alternative}
                         {index === question.correctAlternativeIndex && ' ✓'}
@@ -67,10 +74,8 @@ export function QuestionDisplay({
           <div>
             <h2 className="mb-4 font-semibold">Explicação:</h2>
             <div className="mt-6 rounded-lg border border-brand-blue/20 bg-brand-blue/10 p-4">
-              <div className="prose mt-2 max-w-none">
-                <QuestionContent
-                  stringContent={question.explanationTextString}
-                />
+              <div className="prose mt-2 max-w-none break-words">
+                <div dangerouslySetInnerHTML={{ __html: explanationHtml }} />
               </div>
             </div>
           </div>

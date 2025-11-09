@@ -2,7 +2,6 @@ import { v } from 'convex/values';
 
 import { mutation, query } from './_generated/server';
 import { canSafelyDelete, generateDefaultPrefix, normalizeText } from './utils';
-import { requireAdmin } from './users';
 
 // Queries
 export const list = query({
@@ -39,8 +38,6 @@ export const create = mutation({
     prefix: v.optional(v.string()),
   },
   handler: async (context, { name, themeId, prefix }) => {
-    // Verify admin access
-    await requireAdmin(context);
     // Check if theme exists
     const theme = await context.db.get(themeId);
     if (!theme) {
@@ -69,8 +66,6 @@ export const update = mutation({
     prefix: v.optional(v.string()),
   },
   handler: async (context, { id, name, themeId, prefix }) => {
-    // Verify admin access
-    await requireAdmin(context);
     // Check if subtheme exists
     const existing = await context.db.get(id);
     if (!existing) {
@@ -96,8 +91,6 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id('subthemes') },
   handler: async (context, { id }) => {
-    // Verify admin access
-    await requireAdmin(context);
     // Define dependencies to check
     const dependencies = [
       {

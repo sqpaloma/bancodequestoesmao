@@ -32,11 +32,7 @@ export function useTaxonomyData(
     selectedSubtheme ? { subthemeId: selectedSubtheme } : 'skip',
   );
 
-  // Query for question count
-  const themeQuestionCount = useQuery(
-    api.questions.getQuestionCountForTheme,
-    selectedTheme ? { themeId: selectedTheme } : 'skip',
-  );
+ 
 
   // Generate ID whenever dependencies change
   useEffect(() => {
@@ -48,12 +44,11 @@ export function useTaxonomyData(
     themes,
     subthemes,
     groups,
-    themeQuestionCount,
   ]);
 
   const generateId = () => {
     // Don't try to generate if theme not selected or data not loaded
-    if (!selectedTheme || !themes || themeQuestionCount === undefined) {
+    if (!selectedTheme || !themes) {
       setGeneratedId('');
       return;
     }
@@ -92,12 +87,9 @@ export function useTaxonomyData(
       }
     }
 
-    // The count from the aggregate is the current count, so add 1 for the new question
-    const count = (themeQuestionCount || 0) + 1;
-    // Increase padding to 4 digits
-    const paddedCount = String(count).padStart(4, '0');
+ 
 
-    setGeneratedId(`${codePrefix}-${paddedCount}`);
+    setGeneratedId(`${codePrefix}`);
   };
 
   // Reset dependent fields when parent selection changes

@@ -1,16 +1,8 @@
 'use client';
 
 import {
-  BarChart3,
-  BookOpen,
-  CogIcon,
-  DollarSign,
   FilePlusIcon,
-  FileQuestion,
   FolderCogIcon,
-  Settings,
-  SettingsIcon,
-  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,14 +11,7 @@ import { HoverPrefetchLink } from '@/components/ui/hover-prefetch-link';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  {
-    href: '/admin',
-    label: 'Usuários',
-    icon: Users,
-    exact: true,
-    prefetch: true, // Main admin dashboard - prefetch immediately
-    useHoverPrefetch: false,
-  },
+
   {
     href: '/admin/criar-questao',
     label: 'Criar Questão',
@@ -48,27 +33,7 @@ const navItems = [
     prefetch: true, // Management pages - prefetch immediately
     useHoverPrefetch: false,
   },
-  {
-    href: '/admin/gerenciar-trilhas',
-    label: 'Trilhas e Simulados',
-    icon: SettingsIcon,
-    prefetch: true, // Management pages - prefetch immediately
-    useHoverPrefetch: false,
-  },
-  {
-    href: '/admin/coupons',
-    label: 'Cupons',
-    icon: CogIcon,
-    prefetch: false, // Use hover prefetch for less frequently used features
-    useHoverPrefetch: true,
-  },
-  {
-    href: '/admin/pricingPlans',
-    label: 'Planos de Preços',
-    icon: DollarSign,
-    prefetch: false, // Use hover prefetch for less frequently used features
-    useHoverPrefetch: true,
-  },
+
 ];
 
 interface AdminNavProps {
@@ -79,10 +44,7 @@ export function AdminNav({ className }: AdminNavProps) {
   const pathname = usePathname();
 
   const isActive = (item: (typeof navItems)[0]) => {
-    if (item.exact) {
-      return pathname === item.href;
-    }
-    return pathname.startsWith(item.href);
+    return pathname === item.href;
   };
 
   return (
