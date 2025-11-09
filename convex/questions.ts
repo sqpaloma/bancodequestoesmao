@@ -193,7 +193,7 @@ export const countQuestionsByMode = query({
     const totalQuestions = await ctx.db.query("questions").collect();
     const totalCount = totalQuestions.length;
 
-    // Without user authentication, all questions are available
+  
     // and none are tracked as answered/incorrect/bookmarked
     const result = {
       all: totalCount,
