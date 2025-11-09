@@ -16,7 +16,6 @@ and supports custom and preset quizzes with study/exam modes.
 - **Authentication**: Clerk
 - **Payments**: MercadoPago
 - **Analytics**: PostHog, Vercel Analytics
-- **Error Tracking**: Sentry
 - **UI Components**: Radix UI with shadcn/ui
 - **Rich Text**: TipTap editor with custom image resize extension
 - **CDN**: ImageKit for image uploads and optimization
@@ -51,7 +50,6 @@ npm run test:once             # Run tests once (no watch)
 npm run test:debug            # Debug tests
 npm run coverage              # Run tests with coverage
 npm run test:coverage         # Run tests with coverage (text reporter)
-npm run sentry:sourcemaps     # Upload sourcemaps to Sentry
 npm run migrate:content       # Migrate TipTap content to string format
 ```
 

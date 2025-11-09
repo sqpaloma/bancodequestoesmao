@@ -10,11 +10,13 @@ export default function AdminLayout({
   return (
     <div className="space-y-6 p-2 md:p-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Área do Admin</h1>
+        <h1 className="text-3xl font-semibold tracking-tight"></h1>
       </div>
 
       {/* Admin Navigation */}
-      <AdminNav />
+      <div className="mx-auto max-w-lg">
+        <AdminNav />
+      </div>
 
       {/* Page content */}
       {children}

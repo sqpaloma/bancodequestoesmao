@@ -155,7 +155,7 @@ function renderNode(node: ContentNode, key: string | number): React.ReactNode {
       }
 
       element = (
-        <img
+        <Image
           key={key}
           src={src}
           alt={alt || ''}

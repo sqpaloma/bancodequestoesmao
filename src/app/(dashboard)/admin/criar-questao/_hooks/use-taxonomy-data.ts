@@ -1,5 +1,5 @@
 import { useQuery } from 'convex/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { api } from '../../../../../../convex/_generated/api';
 import { Id } from '../../../../../../convex/_generated/dataModel';
@@ -37,6 +37,7 @@ export function useTaxonomyData(
   // Generate ID whenever dependencies change
   useEffect(() => {
     generateId();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedTheme,
     selectedSubtheme,

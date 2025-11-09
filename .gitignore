@@ -54,9 +54,3 @@ node_modules/
 
 # clerk configuration (can include secrets)
 /.clerk/
-
-# Sentry Config File
-.env.sentry-build-plugin
-
-# Sentry Config File
-.sentryclirc

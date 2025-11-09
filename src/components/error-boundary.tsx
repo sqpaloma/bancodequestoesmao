@@ -1,6 +1,5 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
 import { Home, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
@@ -55,15 +54,6 @@ class ErrorBoundary extends React.Component<
     this.setState({
       error,
       errorInfo,
-    });
-
-    // Sentry error reporting
-    Sentry.withScope(scope => {
-      scope.setTag('errorBoundary', true);
-      scope.setContext('errorInfo', {
-        componentStack: errorInfo.componentStack,
-      });
-      Sentry.captureException(error);
     });
   }
 
@@ -138,8 +128,7 @@ function DefaultErrorFallback({
             Oops! Algo deu errado
           </CardTitle>
           <CardDescription className="text-gray-600">
-            Ocorreu um erro inesperado na aplicação. Nossa equipe foi notificada
-            automaticamente.
+            Ocorreu um erro inesperado na aplicação.
           </CardDescription>
         </CardHeader>
 

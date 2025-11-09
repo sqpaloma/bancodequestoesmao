@@ -10,16 +10,21 @@ import NextTopLoader from 'nextjs-toploader';
 import ErrorBoundary from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 
+import Header from './components/header';
 import ConvexClientProvider from './convex-client-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  display: 'swap',
+  fallback: ['system-ui', 'arial'],
 });
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  display: 'swap',
+  fallback: ['monospace'],
 });
 
 const sifonn = localFont({
@@ -76,6 +81,7 @@ export default function RootLayout({
         <ErrorBoundary>
             <ConvexClientProvider>
               <NextTopLoader />
+              <Header />
               {children}
               <Analytics />
               <Toaster />

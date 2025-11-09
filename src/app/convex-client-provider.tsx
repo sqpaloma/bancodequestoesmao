@@ -1,6 +1,5 @@
 'use client';
-import { ConvexReactClient } from 'convex/react';
-import { ConvexProvider } from 'convex/react';
+import { ConvexProvider,ConvexReactClient } from 'convex/react';
 import { ConvexQueryCacheProvider } from 'convex-helpers/react/cache/provider';
 import { ReactNode } from 'react';
 

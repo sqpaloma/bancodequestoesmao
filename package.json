@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "seed": "convex run init",
-    "build": "next build && npm run sentry:sourcemaps",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -24,7 +24,6 @@
     "test:once": "vitest run",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
     "test:coverage": "vitest run --coverage --coverage.reporter=text",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org ortoqbank --project ortoqbank ./.next && sentry-cli sourcemaps upload --org ortoqbank --project ortoqbank ./.next",
     "migrate:content": "node scripts/migrate-content-to-string.js",
     "prepare": "husky",
     "knip": "knip"
@@ -59,7 +58,6 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@react-email/components": "^0.0.41",
-    "@sentry/nextjs": "^9.40.0",
     "@stepperize/react": "^5.1.6",
     "@tiptap/extension-color": "^2.12.0",
     "@tiptap/extension-highlight": "^2.12.0",
