@@ -5,6 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -28,6 +36,10 @@ export default function GerenciarQuestoes() {
   const [searchQuery, setSearchQuery] = useState('');
   const [deletingId, setDeletingId] = useState<Id<'questions'> | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [questionToDelete, setQuestionToDelete] = useState<{
+    id: Id<'questions'>;
+    title: string;
+  } | null>(null);
 
   const deleteQuestion = useMutation(api.questions.deleteQuestion);
   const { results, status, loadMore } = usePaginatedQuery(
@@ -56,21 +68,16 @@ export default function GerenciarQuestoes() {
     router.push(`/admin/gerenciar-questoes/${questionId}`);
   };
 
-  const handleDelete = async (
-    questionId: Id<'questions'>,
-    questionTitle: string,
-  ) => {
-    if (
-      !confirm(
-        `Tem certeza que deseja excluir a questão "${questionTitle}"?\n\nEsta ação removerá a questão de todos os testes/trilhas que a contêm e não pode ser desfeita.`,
-      )
-    ) {
-      return;
-    }
+  const handleDelete = (questionId: Id<'questions'>, questionTitle: string) => {
+    setQuestionToDelete({ id: questionId, title: questionTitle });
+  };
 
-    setDeletingId(questionId);
+  const confirmDelete = async () => {
+    if (!questionToDelete) return;
+
+    setDeletingId(questionToDelete.id);
     try {
-      await deleteQuestion({ id: questionId });
+      await deleteQuestion({ id: questionToDelete.id });
       toast({
         title: 'Sucesso',
         description: 'Questão excluída com sucesso!',
@@ -86,6 +93,7 @@ export default function GerenciarQuestoes() {
       });
     } finally {
       setDeletingId(null);
+      setQuestionToDelete(null);
     }
   };
 
@@ -240,6 +248,42 @@ export default function GerenciarQuestoes() {
           </Button>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={!!questionToDelete}
+        onOpenChange={open => !open && setQuestionToDelete(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir Questão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir a questão "
+              {questionToDelete?.title}"?
+              <br />
+              <br />
+              Esta ação removerá a questão de todos os testes/trilhas que a
+              contêm e não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setQuestionToDelete(null)}
+              disabled={!!deletingId}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={!!deletingId}
+            >
+              {deletingId ? 'Excluindo...' : 'Excluir'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { canSafelyDelete, generateDefaultPrefix, normalizeText } from './utils';
 // Queries
 export const list = query({
   args: { themeId: v.optional(v.id('themes')) },
+  returns: v.any(),
   handler: async (context, { themeId }) => {
     if (themeId) {
       return await context.db
@@ -19,12 +20,15 @@ export const list = query({
 
 export const getById = query({
   args: { id: v.id('subthemes') },
+  returns: v.any(),
   handler: async (context, { id }) => {
     return await context.db.get(id);
   },
 });
 
 export const listByThemes = query({
+  args: {},
+  returns: v.any(),
   handler: async context => {
     return await context.db.query('subthemes').collect();
   },
@@ -37,6 +41,7 @@ export const create = mutation({
     themeId: v.id('themes'),
     prefix: v.optional(v.string()),
   },
+  returns: v.id('subthemes'),
   handler: async (context, { name, themeId, prefix }) => {
     // Check if theme exists
     const theme = await context.db.get(themeId);
@@ -65,6 +70,7 @@ export const update = mutation({
     themeId: v.id('themes'),
     prefix: v.optional(v.string()),
   },
+  returns: v.null(),
   handler: async (context, { id, name, themeId, prefix }) => {
     // Check if subtheme exists
     const existing = await context.db.get(id);
@@ -84,12 +90,14 @@ export const update = mutation({
       updates.prefix = normalizeText(prefix).toUpperCase();
     }
 
-    return await context.db.patch(id, updates);
+    await context.db.patch(id, updates);
+    return null;
   },
 });
 
 export const remove = mutation({
   args: { id: v.id('subthemes') },
+  returns: v.null(),
   handler: async (context, { id }) => {
     // Define dependencies to check
     const dependencies = [
@@ -105,12 +113,6 @@ export const remove = mutation({
         fieldName: 'subthemeId',
         errorMessage: 'Cannot delete subtheme that is used by questions',
       },
-      {
-        table: 'presetQuizzes',
-        indexName: 'by_subtheme',
-        fieldName: 'subthemeId',
-        errorMessage: 'Cannot delete subtheme that is used by preset quizzes',
-      },
     ];
 
     // Check if subtheme can be safely deleted
@@ -118,5 +120,6 @@ export const remove = mutation({
 
     // If we get here, it means the subtheme can be safely deleted
     await context.db.delete(id);
+    return null;
   },
 });

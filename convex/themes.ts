@@ -6,6 +6,7 @@ import { canSafelyDelete, generateDefaultPrefix, normalizeText } from './utils';
 // Queries
 export const list = query({
   args: {},
+  returns: v.any(),
   handler: async context => {
     return await context.db.query('themes').collect();
   },
@@ -14,6 +15,7 @@ export const list = query({
 // Optimized query that returns themes sorted by displayOrder, then name
 export const listSorted = query({
   args: {},
+  returns: v.any(),
   handler: async context => {
     const themes = await context.db.query('themes').collect();
 
@@ -35,6 +37,7 @@ export const listSorted = query({
 
 export const getById = query({
   args: { id: v.id('themes') },
+  returns: v.any(),
   handler: async (context, { id }) => {
     return await context.db.get(id);
   },
@@ -42,6 +45,7 @@ export const getById = query({
 
 export const getHierarchicalData = query({
   args: {},
+  returns: v.any(),
   handler: async context => {
     const themes = await context.db.query('themes').collect();
     const subthemes = await context.db.query('subthemes').collect();
@@ -61,6 +65,7 @@ export const create = mutation({
     name: v.string(),
     prefix: v.optional(v.string()),
   },
+  returns: v.id('themes'),
   handler: async (context, { name, prefix }) => {
     // Check if theme with same name already exists
     const existing = await context.db
@@ -91,6 +96,7 @@ export const update = mutation({
     name: v.string(),
     prefix: v.optional(v.string()),
   },
+  returns: v.null(),
   handler: async (context, { id, name, prefix }) => {
     // Check if theme exists
     const existing = await context.db.get(id);
@@ -115,12 +121,14 @@ export const update = mutation({
     }
 
     // Update theme
-    return await context.db.patch(id, updates);
+    await context.db.patch(id, updates);
+    return null;
   },
 });
 
 export const remove = mutation({
   args: { id: v.id('themes') },
+  returns: v.null(),
   handler: async (context, { id }) => {
     // Define dependencies to check
     const dependencies = [
@@ -136,12 +144,6 @@ export const remove = mutation({
         fieldName: 'themeId',
         errorMessage: 'Cannot delete theme that is used by questions',
       },
-      {
-        table: 'presetQuizzes',
-        indexName: 'by_theme',
-        fieldName: 'themeId',
-        errorMessage: 'Cannot delete theme that is used by preset quizzes',
-      },
     ];
 
     // Check if theme can be safely deleted
@@ -149,5 +151,6 @@ export const remove = mutation({
 
     // If we get here, it means the theme can be safely deleted
     await context.db.delete(id);
+    return null;
   },
 });

@@ -883,8 +883,7 @@ export default function GerenciarTemas() {
                   irreversível.
                   <br />
                   <strong>Nota:</strong> Não é possível excluir um tema que
-                  possui subtemas, está sendo usado por questões ou por quizzes
-                  pré-definidos.
+                  possui subtemas ou está sendo usado por questões.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -977,8 +976,7 @@ export default function GerenciarTemas() {
                   irreversível.
                   <br />
                   <strong>Nota:</strong> Não é possível excluir um subtema que
-                  possui grupos, está sendo usado por questões ou por quizzes
-                  pré-definidos.
+                  possui grupos ou está sendo usado por questões.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -1071,7 +1069,7 @@ export default function GerenciarTemas() {
                   irreversível.
                   <br />
                   <strong>Nota:</strong> Não é possível excluir um subgrupo que
-                  está sendo usado por questões ou por quizzes pré-definidos.
+                  está sendo usado por questões.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
