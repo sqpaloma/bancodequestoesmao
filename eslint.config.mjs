@@ -39,6 +39,7 @@ export default [
       'unicorn/no-nested-ternary': 'off',
       'unicorn/no-abusive-eslint-disable': 'off',
       'unicorn/no-null': 'off',
+      'import/namespace': 'off',
     },
   },
   {
