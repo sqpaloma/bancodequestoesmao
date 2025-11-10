@@ -41,7 +41,7 @@ export function QuestionDisplay({
           </div>
 
           <div>
-            
+              
             <div className="mt-4 space-y-2">
               {question.alternatives?.map(
                 (alternative: string, index: number) => (
