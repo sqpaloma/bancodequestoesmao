@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery } from 'convex/react';
+import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -19,6 +19,8 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '../../../../../convex/_generated/api';
 import { Id } from '../../../../../convex/_generated/dataModel';
 
+
+
 export default function GerenciarQuestoes() {
   const router = useRouter();
   const { toast } = useToast();
@@ -28,6 +30,11 @@ export default function GerenciarQuestoes() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const deleteQuestion = useMutation(api.questions.deleteQuestion);
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.questions.list,
+    {},
+    { initialNumItems: 5 },
+  );
 
   // Use the searchByCode query when search is provided, otherwise show nothing
   const searchResults =
@@ -104,8 +111,9 @@ export default function GerenciarQuestoes() {
 
       {/* Search Instructions */}
       <p className="text-muted-foreground text-sm">
-        Digite o código ou parte do título da questão e clique em Buscar.
-        Mostrando no máximo 10 resultados.
+        {searchQuery.trim()
+          ? 'Mostrando resultados da busca (máximo 10 resultados).'
+          : 'Mostrando todas as questões. Use a busca para filtrar por código ou título.'}
       </p>
 
       {/* Questions Table */}
@@ -166,20 +174,72 @@ export default function GerenciarQuestoes() {
                   </TableRow>
                 ))
               )
-            ) : (
+            ) : status === 'LoadingFirstPage' ? (
               <TableRow>
                 <TableCell
                   colSpan={4}
                   className="text-muted-foreground py-6 text-center"
                 >
-                  Digite um código ou parte do título da questão e clique em
-                  Buscar para pesquisar questões
+                  Carregando questões...
                 </TableCell>
               </TableRow>
+            ) : results.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-muted-foreground py-6 text-center"
+                >
+                  Nenhuma questão encontrada
+                </TableCell>
+              </TableRow>
+            ) : (
+              results.map(question => (
+                <TableRow key={question._id}>
+                  <TableCell className="font-medium">
+                    {question.questionCode || 'Sem código'}
+                  </TableCell>
+                  <TableCell>{question.title}</TableCell>
+                  <TableCell>
+                    {question.theme
+                      ? question.theme.name
+                      : 'Tema não encontrado'}
+                  </TableCell>
+                  <TableCell className="space-x-2 text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleView(question._id)}
+                    >
+                      Visualizar
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        handleDelete(question._id, question.title)
+                      }
+                      disabled={deletingId === question._id}
+                    >
+                      {deletingId === question._id
+                        ? 'Excluindo...'
+                        : 'Excluir'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {/* Load More Button */}
+      {!searchQuery.trim() && status === 'CanLoadMore' && (
+        <div className="flex justify-center">
+          <Button onClick={() => loadMore(5)} variant="outline">
+            Carregar mais
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
