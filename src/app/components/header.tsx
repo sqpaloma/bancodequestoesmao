@@ -15,7 +15,7 @@ export default function Header() {
             className="rounded-sm"
           />
           <span className="font-sifonn translate-y-1 text-xl font-bold">
-            OrtoQBank - Mão
+            OrtoQBank
           </span>
         </Link>
         <div className="flex items-center space-x-4">
