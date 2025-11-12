@@ -334,22 +334,24 @@ export const getNextSequentialNumber = query({
     codePrefix: v.string(),
   },
   handler: async (ctx, args) => {
-    // Search for all questions that start with the given prefix
-    const matchingQuestions = await ctx.db
-      .query("questions")
-      .withSearchIndex("search_by_code", (q) =>
-        q.search("questionCode", args.codePrefix),
-      )
-      .collect();
+    // Get all questions from the database
+    const allQuestions = await ctx.db.query("questions").collect();
 
     // Filter to only include questions that actually start with the prefix
     // and extract the numeric suffix
     const numbers: number[] = [];
-    const prefixRegex = new RegExp(`^${args.codePrefix}\\s*(\\d+)$`, 'i');
+    
+    // Normalize the prefix for comparison (remove extra spaces, uppercase)
+    const normalizedPrefix = args.codePrefix.trim().toUpperCase();
+    
+    // Create regex that matches: PREFIX + optional space + digits
+    // Examples: "TESTE001", "TESTE 001", "TRA 001", "TRA-FR 001"
+    const prefixRegex = new RegExp(`^${normalizedPrefix.replace(/[-]/g, '\\-')}\\s*(\\d+)$`, 'i');
 
-    for (const question of matchingQuestions) {
+    for (const question of allQuestions) {
       if (question.questionCode) {
-        const match = question.questionCode.match(prefixRegex);
+        const normalizedCode = question.questionCode.trim().toUpperCase();
+        const match = normalizedCode.match(prefixRegex);
         if (match && match[1]) {
           numbers.push(parseInt(match[1], 10));
         }
@@ -364,5 +366,59 @@ export const getNextSequentialNumber = query({
     // Return the highest number + 1
     const maxNumber = Math.max(...numbers);
     return maxNumber + 1;
+  },
+});
+
+// Mutation to renumber all questions with sequential codes
+export const renumberAllQuestions = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Get all questions
+    const allQuestions = await ctx.db.query("questions").order("asc").collect();
+
+    // Group questions by their prefix (everything before the number)
+    const questionsByPrefix = new Map<string, Doc<"questions">[]>();
+
+    for (const question of allQuestions) {
+      if (question.questionCode) {
+        // Extract prefix (everything before the last space and digits)
+        // Examples: "TESTE001" -> "TESTE", "TRA 001" -> "TRA", "TRA-FR 001" -> "TRA-FR"
+        const match = question.questionCode.match(/^(.+?)\s*(\d+)$/);
+        if (match) {
+          const prefix = match[1].trim().toUpperCase();
+          if (!questionsByPrefix.has(prefix)) {
+            questionsByPrefix.set(prefix, []);
+          }
+          questionsByPrefix.get(prefix)!.push(question);
+        }
+      }
+    }
+
+    // Renumber each group
+    let updatedCount = 0;
+    for (const [prefix, questions] of questionsByPrefix.entries()) {
+      // Sort by creation time to maintain order
+      questions.sort((a, b) => a._creationTime - b._creationTime);
+
+      // Assign sequential numbers
+      for (let i = 0; i < questions.length; i++) {
+        const newNumber = (i + 1).toString().padStart(3, '0');
+        const newCode = `${prefix} ${newNumber}`;
+        
+        // Only update if the code is different
+        if (questions[i].questionCode !== newCode) {
+          await ctx.db.patch(questions[i]._id, {
+            questionCode: newCode,
+          });
+          updatedCount++;
+        }
+      }
+    }
+
+    return {
+      message: `Renumeradas ${updatedCount} questões em ${questionsByPrefix.size} grupos`,
+      updatedCount,
+      groupsCount: questionsByPrefix.size,
+    };
   },
 });

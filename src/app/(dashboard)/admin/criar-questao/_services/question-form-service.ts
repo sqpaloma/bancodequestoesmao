@@ -109,8 +109,9 @@ export async function processAndSubmitQuestion(
     // Include generated question code in submission
     const submissionData = {
       ...data,
-      // Make one final pass with normalizeText to guarantee no special characters
-      questionCode: normalizeText(generatedId).toUpperCase(),
+      // Keep the generated ID as-is (already formatted correctly with spaces)
+      // Just ensure it's uppercase and trimmed
+      questionCode: generatedId.trim().toUpperCase(),
       // Store processed content to use in validation, but don't send to API
       _questionText: processedQuestionText,
       _explanationText: processedExplanationText,

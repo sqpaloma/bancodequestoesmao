@@ -83,7 +83,7 @@ export function useTaxonomyData(
         const normalizedSubthemePrefix = normalizeText(
           subtheme.prefix,
         ).toUpperCase();
-        prefix += `-${normalizedSubthemePrefix}`;
+        prefix += normalizedSubthemePrefix;
       }
     }
 
@@ -92,7 +92,7 @@ export function useTaxonomyData(
       const group = groups.find(g => g._id === selectedGroup);
       if (group?.prefix) {
         const normalizedGroupPrefix = normalizeText(group.prefix).toUpperCase();
-        prefix += `-${normalizedGroupPrefix}`;
+        prefix += normalizedGroupPrefix;
       }
     }
 
