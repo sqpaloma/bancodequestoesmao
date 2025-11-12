@@ -20,6 +20,7 @@ export function useTaxonomyData(
     defaultGroupId,
   );
   const [generatedId, setGeneratedId] = useState<string>('');
+  const [codePrefix, setCodePrefix] = useState<string>('');
 
   // Query data
   const themes = useQuery(api.themes.list);
@@ -32,7 +33,11 @@ export function useTaxonomyData(
     selectedSubtheme ? { subthemeId: selectedSubtheme } : 'skip',
   );
 
- 
+  // Query next sequential number based on the code prefix
+  const nextSequentialNumber = useQuery(
+    api.questions.getNextSequentialNumber,
+    codePrefix ? { codePrefix } : 'skip',
+  );
 
   // Generate ID whenever dependencies change
   useEffect(() => {
@@ -45,18 +50,21 @@ export function useTaxonomyData(
     themes,
     subthemes,
     groups,
+    nextSequentialNumber,
   ]);
 
   const generateId = () => {
     // Don't try to generate if theme not selected or data not loaded
     if (!selectedTheme || !themes) {
       setGeneratedId('');
+      setCodePrefix('');
       return;
     }
 
     const theme = themes.find(t => t._id === selectedTheme);
     if (!theme) {
       setGeneratedId('');
+      setCodePrefix('');
       return;
     }
 
@@ -66,7 +74,7 @@ export function useTaxonomyData(
       : normalizeText(theme.name.slice(0, 3)).toUpperCase();
 
     // Build parts of the ID
-    let codePrefix = themePrefix;
+    let prefix = themePrefix;
 
     // Add subtheme prefix if selected
     if (selectedSubtheme && subthemes) {
@@ -75,7 +83,7 @@ export function useTaxonomyData(
         const normalizedSubthemePrefix = normalizeText(
           subtheme.prefix,
         ).toUpperCase();
-        codePrefix += `-${normalizedSubthemePrefix}`;
+        prefix += `-${normalizedSubthemePrefix}`;
       }
     }
 
@@ -84,13 +92,22 @@ export function useTaxonomyData(
       const group = groups.find(g => g._id === selectedGroup);
       if (group?.prefix) {
         const normalizedGroupPrefix = normalizeText(group.prefix).toUpperCase();
-        codePrefix += `-${normalizedGroupPrefix}`;
+        prefix += `-${normalizedGroupPrefix}`;
       }
     }
 
- 
+    // Store the prefix to trigger the sequential number query
+    setCodePrefix(prefix);
 
-    setGeneratedId(`${codePrefix}`);
+    // Add sequential number if available
+    if (nextSequentialNumber !== undefined) {
+      // Format the number with leading zeros (e.g., 001, 002, etc.)
+      const formattedNumber = nextSequentialNumber.toString().padStart(3, '0');
+      setGeneratedId(`${prefix} ${formattedNumber}`);
+    } else {
+      // Show prefix while loading the sequential number
+      setGeneratedId(`${prefix} ...`);
+    }
   };
 
   // Reset dependent fields when parent selection changes

@@ -328,3 +328,41 @@ export const searchByTitle = query({
     return [];
   },
 });
+
+export const getNextSequentialNumber = query({
+  args: {
+    codePrefix: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Search for all questions that start with the given prefix
+    const matchingQuestions = await ctx.db
+      .query("questions")
+      .withSearchIndex("search_by_code", (q) =>
+        q.search("questionCode", args.codePrefix),
+      )
+      .collect();
+
+    // Filter to only include questions that actually start with the prefix
+    // and extract the numeric suffix
+    const numbers: number[] = [];
+    const prefixRegex = new RegExp(`^${args.codePrefix}\\s*(\\d+)$`, 'i');
+
+    for (const question of matchingQuestions) {
+      if (question.questionCode) {
+        const match = question.questionCode.match(prefixRegex);
+        if (match && match[1]) {
+          numbers.push(parseInt(match[1], 10));
+        }
+      }
+    }
+
+    // If no questions found with this prefix, start at 1
+    if (numbers.length === 0) {
+      return 1;
+    }
+
+    // Return the highest number + 1
+    const maxNumber = Math.max(...numbers);
+    return maxNumber + 1;
+  },
+});
