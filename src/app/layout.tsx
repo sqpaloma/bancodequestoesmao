@@ -1,5 +1,6 @@
 import './globals.css';
 
+import { ClerkProvider } from '@clerk/nextjs';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
@@ -33,24 +34,24 @@ const sifonn = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'OrtoQBank - Preparação para TEOT | Banco de Questões de Ortopedia',
+  title: 'SBCJ - Banco de Questões | Banco de Questões de Ortopedia',
   description:
-    'OrtoQBank - Preparatório para o TEOT l Curso TEOT. 1° lugar TEOT. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
+    'SBCJ - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
   keywords:
-    'TEOT, ortopedia, questões, simulados, preparação, residência médica, ortopedista',
-  authors: [{ name: 'OrtoQBank' }],
+    'SBCJ, questões, simulados, preparação, residência médica, ortopedista',
+  authors: [{ name: 'SBCJ' }],
   openGraph: {
-    title: 'OrtoQBank - Preparação para TEOT',
+    title: 'SBCJ - Banco de Questões',
     description:
-      'OrtoQBank - Preparatório para o TEOT l Curso TEOT. 1° lugar TEOT. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
+      'SBCJ - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
     type: 'website',
     locale: 'pt_BR',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OrtoQBank - Preparação para TEOT',
+    title: 'SBCJ - Banco de Questões',
     description:
-      'OrtoQBank - Preparatório para o TEOT l Curso TEOT. 1° lugar TEOT. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
+      'SBCJ - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
   },
   robots: {
     index: true,
@@ -77,16 +78,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${sifonn.variable} antialiased`}
       >
-        <ErrorBoundary>
-          <ConvexClientProvider>
-            <NextTopLoader />
-            <Header />
-            {children}
-            <Analytics />
-            <Toaster />
-          </ConvexClientProvider>
-        </ErrorBoundary>
+        <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}>
+          <ErrorBoundary>
+            <ConvexClientProvider>
+              <NextTopLoader />
+              <Header />
+              {children}
+              <Analytics />
+              <Toaster />
+            </ConvexClientProvider>
+          </ErrorBoundary>
+        </ClerkProvider>
       </body>
-    </html>
+    </html >
   );
 }
