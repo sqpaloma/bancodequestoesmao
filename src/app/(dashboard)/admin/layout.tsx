@@ -13,10 +13,6 @@ export default function AdminLayout({
         <h1 className="text-3xl font-semibold tracking-tight"></h1>
       </div>
 
-      {/* Admin Navigation */}
-      <div className="mx-auto max-w-lg">
-        <AdminNav />
-      </div>
 
       {/* Page content */}
       {children}
