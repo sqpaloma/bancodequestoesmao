@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as groups from "../groups.js";
+import type * as questionCodeSequences from "../questionCodeSequences.js";
 import type * as questions from "../questions.js";
 import type * as questionsAggregateSync from "../questionsAggregateSync.js";
 import type * as subthemes from "../subthemes.js";
@@ -30,6 +31,7 @@ import type * as utils from "../utils.js";
  */
 declare const fullApi: ApiFromModules<{
   groups: typeof groups;
+  questionCodeSequences: typeof questionCodeSequences;
   questions: typeof questions;
   questionsAggregateSync: typeof questionsAggregateSync;
   subthemes: typeof subthemes;

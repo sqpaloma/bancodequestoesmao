@@ -333,39 +333,24 @@ export const getNextSequentialNumber = query({
   args: {
     codePrefix: v.string(),
   },
+  returns: v.number(),
   handler: async (ctx, args) => {
-    // Get all questions from the database
-    const allQuestions = await ctx.db.query("questions").collect();
-
-    // Filter to only include questions that actually start with the prefix
-    // and extract the numeric suffix
-    const numbers: number[] = [];
-    
     // Normalize the prefix for comparison (remove extra spaces, uppercase)
     const normalizedPrefix = args.codePrefix.trim().toUpperCase();
-    
-    // Create regex that matches: PREFIX + optional space + digits
-    // Examples: "TESTE001", "TESTE 001", "TRA 001", "TRA-FR 001"
-    const prefixRegex = new RegExp(`^${normalizedPrefix.replace(/[-]/g, '\\-')}\\s*(\\d+)$`, 'i');
 
-    for (const question of allQuestions) {
-      if (question.questionCode) {
-        const normalizedCode = question.questionCode.trim().toUpperCase();
-        const match = normalizedCode.match(prefixRegex);
-        if (match && match[1]) {
-          numbers.push(parseInt(match[1], 10));
-        }
-      }
-    }
+    // Look up the aggregate for this prefix
+    const sequence = await ctx.db
+      .query("questionCodeSequences")
+      .withIndex("by_prefix", (q) => q.eq("codePrefix", normalizedPrefix))
+      .first();
 
-    // If no questions found with this prefix, start at 1
-    if (numbers.length === 0) {
+    // If no sequence exists for this prefix, start at 1
+    if (!sequence) {
       return 1;
     }
 
-    // Return the highest number + 1
-    const maxNumber = Math.max(...numbers);
-    return maxNumber + 1;
+    // Return the next sequential number
+    return sequence.maxNumber + 1;
   },
 });
 

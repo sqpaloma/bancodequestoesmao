@@ -1,6 +1,7 @@
 import type { GenericMutationCtx } from "convex/server";
 
 import type { DataModel, Doc, Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 // Question stats are now handled by aggregates and triggers
 
 // ---------- Helper Functions for Question CRUD + Aggregate Sync ----------
@@ -11,6 +12,13 @@ export async function _internalInsertQuestion(
   data: Omit<Doc<"questions">, "_id" | "_creationTime">,
 ) {
   const questionId = await ctx.db.insert("questions", data);
+
+  // Update question code sequence aggregate if code is provided
+  if (data.questionCode) {
+    await ctx.scheduler.runAfter(0, internal.questionCodeSequences.updateSequenceForCode, {
+      questionCode: data.questionCode,
+    });
+  }
 
   return questionId;
 }
@@ -25,6 +33,13 @@ export async function _internalUpdateQuestion(
     throw new Error(`Question not found for update: ${id}`);
   }
   await ctx.db.patch(id, updates);
+
+  // Update question code sequence aggregate if code changed
+  if (updates.questionCode && updates.questionCode !== oldQuestionDoc.questionCode) {
+    await ctx.scheduler.runAfter(0, internal.questionCodeSequences.updateSequenceForCode, {
+      questionCode: updates.questionCode,
+    });
+  }
 
   // Check if any taxonomy fields changed
   const taxonomyChanged =

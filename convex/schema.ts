@@ -49,4 +49,11 @@ export default defineSchema({
     .searchIndex('search_by_title', { searchField: 'title' })
     .searchIndex('search_by_code', { searchField: 'questionCode' }),
 
+  // Aggregate table to track the maximum sequential number per question code prefix
+  // This allows O(1) lookup instead of O(n) scanning all questions
+  questionCodeSequences: defineTable({
+    codePrefix: v.string(), // The normalized prefix (e.g., "TESTE", "TRA", "TRA-FR")
+    maxNumber: v.number(),  // The highest sequential number used with this prefix
+  }).index('by_prefix', ['codePrefix']),
+
 });
