@@ -45,7 +45,7 @@ export default function HomePage() {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center max-w-md px-6">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Banco de Questões SBCJ
+              Banco de Questões MÃO
             </h1>
             <p className="text-gray-600 mb-8">
               Faça login para acessar o sistema de gerenciamento de questões
@@ -63,7 +63,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl px-2 pb-20 pt-4 md:px-6 md:py-6">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
-              Banco de Questões SBCJ
+              Banco de Questões MÃO
             </h1>
 
           </div>

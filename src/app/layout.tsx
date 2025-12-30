@@ -34,24 +34,24 @@ const sifonn = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'SBCJ - Banco de Questões | Banco de Questões de Ortopedia',
+  title: 'MÃO - Banco de Questões | Banco de Questões de Ortopedia',
   description:
-    'SBCJ - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
+    'MÃO - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
   keywords:
-    'SBCJ, questões, simulados, preparação, residência médica, ortopedista',
-  authors: [{ name: 'SBCJ' }],
+    'MÃO, questões, simulados, preparação, residência médica, ortopedista',
+  authors: [{ name: 'MÃO' }],
   openGraph: {
-    title: 'SBCJ - Banco de Questões',
+    title: 'MÃO - Banco de Questões',
     description:
-      'SBCJ - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
+      'MÃO - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
     type: 'website',
     locale: 'pt_BR',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SBCJ - Banco de Questões',
+    title: 'MÃO - Banco de Questões',
     description:
-      'SBCJ - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
+      'MÃO - Banco de Questões. Conheça nossa plataforma e garanta sua aprovação na prova da SBOT! Feito por especialistas da USP.',
   },
   robots: {
     index: true,
