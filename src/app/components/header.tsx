@@ -29,9 +29,7 @@ export default function Header() {
             </span>
           </Link>
           <div className="flex items-center space-x-4">
-            <Link href="/admin/criar-questao">Criar Questões</Link>
-            <Link href="/admin/gerenciar-questoes">Gerenciar Questões</Link>
-            <Link href="/admin/gerenciar-temas">Gerenciar Temas</Link>
+
             <UserButton />
           </div>
         </div>

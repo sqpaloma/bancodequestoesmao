@@ -28,7 +28,7 @@ export function AdminNav({ className }: { className?: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className={cn('bg-card rounded-lg border p-1', className)}>
+    <nav className={cn('mx-auto w-fit rounded-lg border border-brand-blue/20 bg-white/40 backdrop-blur-sm p-1', className)}>
       <ul className="flex items-center justify-center gap-1">
         {navItems.map(item => (
           <li key={item.href}>
@@ -37,8 +37,8 @@ export function AdminNav({ className }: { className?: string }) {
               className={cn(
                 'inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors',
                 pathname === item.href
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                  ? 'bg-brand-blue text-white'
+                  : 'text-gray-700 hover:bg-white/60 hover:text-brand-blue',
               )}
             >
               <item.icon size={13} />

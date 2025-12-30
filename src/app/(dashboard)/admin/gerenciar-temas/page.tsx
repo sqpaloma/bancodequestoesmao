@@ -415,7 +415,7 @@ export default function GerenciarTemas() {
   };
 
   return (
-    <div className="space-y-6 p-2 sm:p-6">
+    <div className="mx-auto max-w-5xl space-y-6 px-2 md:px-6">
       <h1 className="text-xl font-bold sm:text-2xl">Gerenciar Temas</h1>
 
       {/* Selection Summary Section */}

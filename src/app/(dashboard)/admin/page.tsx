@@ -29,7 +29,7 @@ const cards = [
 
 export default function AdminPage() {
     return (
-        <main className="w-full bg-gradient-to-b from-slate-50 via-brand-blue/10 to-indigo-100 min-h-screen">
+        <main className="w-full min-h-screen">
             <div className="mx-auto max-w-5xl px-2 pb-20 pt-4 md:px-6 md:py-6">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900">
@@ -43,7 +43,7 @@ export default function AdminPage() {
                             <Link
                                 key={card.href}
                                 href={card.href}
-                                className="group relative overflow-hidden rounded-lg border bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:scale-105"
+                                className="group relative overflow-hidden rounded-lg border border-brand-blue/20 bg-white/40 backdrop-blur-sm p-6 shadow-sm transition-all hover:shadow-lg hover:scale-105 hover:bg-white/60"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className={`${card.color} rounded-lg p-3 text-white`}>

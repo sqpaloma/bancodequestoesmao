@@ -98,7 +98,7 @@ export default function GerenciarQuestoes() {
   };
 
   return (
-    <div className="space-y-6 p-0 md:p-6">
+    <div className="mx-auto max-w-5xl space-y-6 px-2 md:px-6">
       <h1 className="text-2xl font-bold">Gerenciar Questões</h1>
 
       {/* Search Input */}
