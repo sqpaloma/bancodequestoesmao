@@ -100,13 +100,13 @@ export function useTaxonomyData(
     setCodePrefix(prefix);
 
     // Add sequential number if available
-    if (nextSequentialNumber !== undefined) {
+    if (nextSequentialNumber === undefined) {
+      // Show prefix while loading the sequential number
+      setGeneratedId(`${prefix} ...`);
+    } else {
       // Format the number with leading zeros (e.g., 001, 002, etc.)
       const formattedNumber = nextSequentialNumber.toString().padStart(3, '0');
       setGeneratedId(`${prefix} ${formattedNumber}`);
-    } else {
-      // Show prefix while loading the sequential number
-      setGeneratedId(`${prefix} ...`);
     }
   };
 

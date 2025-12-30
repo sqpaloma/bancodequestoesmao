@@ -258,8 +258,8 @@ export default function GerenciarQuestoes() {
           <DialogHeader>
             <DialogTitle>Excluir Questão</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir a questão "
-              {questionToDelete?.title}"?
+              Tem certeza que deseja excluir a questão &quot;
+              {questionToDelete?.title}&quot;?
               <br />
               <br />
               Esta ação removerá a questão de todos os testes/trilhas que a

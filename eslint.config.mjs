@@ -40,7 +40,6 @@ export default [
       'unicorn/no-abusive-eslint-disable': 'off',
       'unicorn/no-null': 'off',
       'import/namespace': 'off',
-      'ignoreDuringBuilds': true,
     },
   },
   {
