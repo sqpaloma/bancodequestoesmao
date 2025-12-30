@@ -146,7 +146,9 @@ export async function POST(request: Request) {
     }
 
     // Process the event based on type
-    if (event.type === 'user.created' || event.type === 'user.updated') {
+    switch (event.type) {
+      case 'user.created':
+      case 'user.updated': {
       console.log(`[Clerk Webhook] Processing ${event.type} event for user`);
       
       if (!CONVEX_URL || !CONVEX_DEPLOY_KEY) {
@@ -179,7 +181,9 @@ export async function POST(request: Request) {
           { status: 200 },
         );
       }
-    } else if (event.type === 'user.deleted') {
+      break;
+    }
+    case 'user.deleted': {
       console.log(`[Clerk Webhook] Processing user.deleted event`);
       
       if (!CONVEX_URL || !CONVEX_DEPLOY_KEY) {
@@ -212,7 +216,9 @@ export async function POST(request: Request) {
           { status: 200 },
         );
       }
-    } else if (event.type === 'session.created') {
+      break;
+    }
+    case 'session.created': {
       const { user_id, id: newSessionId } = event.data;
 
       // Validate new session ID
@@ -349,8 +355,12 @@ export async function POST(request: Request) {
           { status: 200 },
         );
       }
-    } else {
+      break;
+    }
+    default: {
       console.log(`[Clerk Webhook] Skipping event of type: ${event.type}`);
+      break;
+    }
     }
 
     // Always return success to acknowledge webhook receipt
