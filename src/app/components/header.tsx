@@ -11,7 +11,7 @@ export default function Header() {
       <nav>
         <header className="sticky top-0 z-50 bg-brand-blue text-white">
           <div className="container mx-auto flex items-center justify-between px-4 py-4">
-            <Link href="/" className="flex items-end space-x-2">
+            <Link href="/admin" className="flex items-end space-x-2">
               <Image
                 src="/logo-transparente.png"
                 alt="OrtoQBank Logo"
