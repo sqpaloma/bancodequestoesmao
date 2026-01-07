@@ -1,7 +1,11 @@
 import { SignInButton } from '@clerk/nextjs';
 import { ArrowRight, BookOpen, Brain, Target, Users } from 'lucide-react';
 
-export default function LandingPage() {
+import { requireAdminServer } from '@/lib/server-auth';
+
+export default async function LandingPage() {
+  await requireAdminServer();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-white">
       {/* Hero Section */}

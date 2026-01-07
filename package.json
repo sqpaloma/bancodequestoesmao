@@ -31,7 +31,7 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.59.2",
     "@clerk/localizations": "^3.32.1",
-    "@clerk/nextjs": "^6.36.5",
+    "@clerk/nextjs": "^6.36.6",
     "@convex-dev/aggregate": "^0.1.21",
     "@convex-dev/migrations": "^0.2.9",
     "@convex-dev/rate-limiter": "^0.2.11",
