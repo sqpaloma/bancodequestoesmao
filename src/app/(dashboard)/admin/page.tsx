@@ -1,8 +1,7 @@
-'use client';
-
 import { List, PlusCircle, Tags } from 'lucide-react';
 import Link from 'next/link';
 
+import { requireAdminServer } from '@/lib/server-auth';
 const cards = [
     {
         title: 'Criar Questão',
@@ -27,7 +26,9 @@ const cards = [
     },
 ];
 
-export default function AdminPage() {
+export default async function AdminPage() {
+    await requireAdminServer();
+
     return (
         <main className="w-full min-h-screen">
             <div className="mx-auto max-w-5xl px-2 pb-20 pt-4 md:px-6 md:py-6">

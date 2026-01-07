@@ -1,5 +1,6 @@
 import './globals.css';
 
+import { ClerkProvider } from '@clerk/nextjs';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
@@ -9,6 +10,7 @@ import NextTopLoader from 'nextjs-toploader';
 
 import ErrorBoundary from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
+import { requireAdminServer } from '@/lib/server-auth';
 
 import Header from './components/header';
 import ConvexClientProvider from './convex-client-provider';
@@ -65,11 +67,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await requireAdminServer();
+
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
   return (
     <html lang="pt-BR">
@@ -77,15 +81,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${sifonn.variable} antialiased`}
       >
-        <ErrorBoundary>
-          <ConvexClientProvider>
-            <NextTopLoader />
-            <Header />
-            {children}
-            <Analytics />
-            <Toaster />
-          </ConvexClientProvider>
-        </ErrorBoundary>
+        <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}>
+          <ErrorBoundary>
+            <ConvexClientProvider>
+              <NextTopLoader />
+              <Header />
+              {children}
+              <Analytics />
+              <Toaster />
+            </ConvexClientProvider>
+          </ErrorBoundary>
+        </ClerkProvider>
       </body>
     </html >
   );
