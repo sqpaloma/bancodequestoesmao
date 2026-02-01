@@ -1,23 +1,117 @@
-import { paginationOptsValidator } from "convex/server";
-import { v } from "convex/values";
+import { paginationOptsValidator } from 'convex/server';
+import { v } from 'convex/values';
 
-import { api, internal } from "./_generated/api";
-import type { Doc } from "./_generated/dataModel";
-import {
-  // Keep these for defining the actual mutations/queries
-  internalAction,
-  internalMutation,
-  mutation,
-  query,
-} from "./_generated/server";
+import type { Doc, Id } from './_generated/dataModel';
+import type { MutationCtx, QueryCtx } from './_generated/server';
+import { mutation, query } from './_generated/server';
 import {
   _internalDeleteQuestion,
   _internalInsertQuestion,
   _internalUpdateQuestion,
-} from "./questionsAggregateSync";
-import { validateNoBlobs } from "./utils";
+} from './questionsAggregateSync';
+import { validateNoBlobs } from './utils';
 
-// Question stats are now handled by aggregates and triggers
+// ==========================================================================
+// HELPER FUNCTIONS FOR QUESTION CONTENT
+// ==========================================================================
+
+/**
+ * Get question content from the questionContent table.
+ * Falls back to question fields during migration period.
+ */
+async function getQuestionContent(
+  ctx: QueryCtx | MutationCtx,
+  questionId: Id<'questions'>,
+  question?: Doc<'questions'> | null,
+) {
+  // First try to get from questionContent table
+  const content = await ctx.db
+    .query('questionContent')
+    .withIndex('by_question', (q) => q.eq('questionId', questionId))
+    .unique();
+
+  if (content) {
+    return {
+      questionTextString: content.questionTextString,
+      explanationTextString: content.explanationTextString,
+      alternatives: content.alternatives,
+    };
+  }
+
+  // Fall back to question fields during migration
+  if (question) {
+    return {
+      questionTextString: question.questionTextString ?? '',
+      explanationTextString: question.explanationTextString ?? '',
+      alternatives: question.alternatives ?? [],
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Get a question with its content merged in.
+ * Used by getById and other queries that need full question data.
+ */
+async function getQuestionWithContent(
+  ctx: QueryCtx | MutationCtx,
+  questionId: Id<'questions'>,
+) {
+  const question = await ctx.db.get(questionId);
+  if (!question) return null;
+
+  const content = await getQuestionContent(ctx, questionId, question);
+
+  return {
+    ...question,
+    // Merge content, ensuring we always have these fields
+    questionTextString: content?.questionTextString ?? question.questionTextString ?? '',
+    explanationTextString: content?.explanationTextString ?? question.explanationTextString ?? '',
+    alternatives: content?.alternatives ?? question.alternatives ?? [],
+  };
+}
+
+/**
+ * Batch get questions with their content.
+ * More efficient than calling getQuestionWithContent multiple times.
+ */
+async function getManyQuestionsWithContent(
+  ctx: QueryCtx | MutationCtx,
+  questionIds: Id<'questions'>[],
+) {
+  // Batch fetch all questions
+  const questions = await Promise.all(
+    questionIds.map((id) => ctx.db.get(id)),
+  );
+
+  // Batch fetch all content
+  const contents = await Promise.all(
+    questionIds.map((id) =>
+      ctx.db
+        .query('questionContent')
+        .withIndex('by_question', (q) => q.eq('questionId', id))
+        .unique(),
+    ),
+  );
+
+  // Merge questions with their content
+  return questions.map((question, index) => {
+    if (!question) return null;
+
+    const content = contents[index];
+    return {
+      ...question,
+      questionTextString: content?.questionTextString ?? question.questionTextString ?? '',
+      explanationTextString: content?.explanationTextString ?? question.explanationTextString ?? '',
+      alternatives: content?.alternatives ?? question.alternatives ?? [],
+    };
+  });
+}
+
+// ==========================================================================
+// QUERIES
+// ==========================================================================
 
 export const create = mutation({
   args: {
@@ -28,9 +122,9 @@ export const create = mutation({
     title: v.string(),
     alternatives: v.array(v.string()),
     correctAlternativeIndex: v.number(),
-    themeId: v.id("themes"),
-    subthemeId: v.optional(v.id("subthemes")),
-    groupId: v.optional(v.id("groups")),
+    themeId: v.id('themes'),
+    subthemeId: v.optional(v.id('subthemes')),
+    groupId: v.optional(v.id('groups')),
   },
   handler: async (ctx, args) => {
     // Validate JSON structure of string content
@@ -47,20 +141,35 @@ export const create = mutation({
       }
     } catch (error: any) {
       throw new Error(
-        "Invalid content format: " + (error.message || "Unknown error"),
+        'Invalid content format: ' + (error.message || 'Unknown error'),
       );
     }
 
-    // Prepare data and call the internal helper
+    // Prepare question metadata (lightweight fields only)
     const questionData = {
-      ...args,
-      // Set migration flag
+      title: args.title,
       normalizedTitle: args.title.trim().toLowerCase(),
-      isPublic: false, // Default value
+      questionCode: args.questionCode,
+      themeId: args.themeId,
+      subthemeId: args.subthemeId,
+      groupId: args.groupId,
+      correctAlternativeIndex: args.correctAlternativeIndex,
+      alternativeCount: args.alternatives.length,
+      isPublic: false,
+      contentMigrated: true, // New questions go directly to split tables
     };
 
-    // Use the helper function
+    // Use the helper function to insert question
     const questionId = await _internalInsertQuestion(ctx, questionData);
+
+    // Insert content into questionContent table
+    await ctx.db.insert('questionContent', {
+      questionId,
+      questionTextString: args.questionTextString,
+      explanationTextString: args.explanationTextString,
+      alternatives: args.alternatives,
+    });
+
     return questionId;
   },
 });
@@ -89,17 +198,18 @@ export const list = query({
 });
 
 export const getById = query({
-  args: { id: v.id("questions") },
-  handler: async (context, arguments_) => {
-    const question = await context.db.get(arguments_.id);
+  args: { id: v.id('questions') },
+  handler: async (ctx, args) => {
+    // Get question with content merged in
+    const question = await getQuestionWithContent(ctx, args.id);
     if (!question) {
-      throw new Error("Question not found");
+      throw new Error('Question not found');
     }
 
-    const theme = await context.db.get(question.themeId);
-
+    // Fetch related taxonomy data
+    const theme = await ctx.db.get(question.themeId);
     const subtheme = question.subthemeId
-      ? await context.db.get(question.subthemeId)
+      ? await ctx.db.get(question.subthemeId)
       : undefined;
 
     return {
@@ -112,7 +222,7 @@ export const getById = query({
 
 export const update = mutation({
   args: {
-    id: v.id("questions"),
+    id: v.id('questions'),
     // Accept stringified content from frontend
     questionTextString: v.string(),
     explanationTextString: v.string(),
@@ -120,9 +230,9 @@ export const update = mutation({
     title: v.string(),
     alternatives: v.array(v.string()),
     correctAlternativeIndex: v.number(),
-    themeId: v.id("themes"),
-    subthemeId: v.optional(v.id("subthemes")),
-    groupId: v.optional(v.id("groups")),
+    themeId: v.id('themes'),
+    subthemeId: v.optional(v.id('subthemes')),
+    groupId: v.optional(v.id('groups')),
     isPublic: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -130,7 +240,6 @@ export const update = mutation({
     try {
       const questionTextObj = JSON.parse(args.questionTextString);
       const explanationTextObj = JSON.parse(args.explanationTextString);
-      console.log("questionTextObj", questionTextObj);
 
       // Validate structure after parsing
       if (questionTextObj.content) {
@@ -141,25 +250,40 @@ export const update = mutation({
       }
     } catch (error: any) {
       throw new Error(
-        "Invalid content format: " + (error.message || "Unknown error"),
+        'Invalid content format: ' + (error.message || 'Unknown error'),
       );
     }
 
-    // Don't need to check if question exists here, helper does it
+    const { id, questionTextString, explanationTextString, alternatives, ...metadataFields } = args;
 
-    const { id, ...otherFields } = args;
-
-    // Prepare update data
-    const updates = {
-      ...otherFields,
-
-      normalizedTitle: args.title?.trim().toLowerCase(), // Handle optional title in updates
+    // Prepare metadata updates (lightweight fields only)
+    const metadataUpdates = {
+      ...metadataFields,
+      normalizedTitle: args.title?.trim().toLowerCase(),
+      alternativeCount: alternatives.length,
+      contentMigrated: true,
     };
 
-    // Use the helper function
-    await _internalUpdateQuestion(ctx, id, updates);
+    // Use the helper function to update question metadata
+    await _internalUpdateQuestion(ctx, id, metadataUpdates);
 
-    return true; // Indicate success
+    // Update or create content in questionContent table
+    const existingContent = await ctx.db
+      .query('questionContent')
+      .withIndex('by_question', (q) => q.eq('questionId', id))
+      .unique();
+
+    const contentData = {
+      questionTextString,
+      explanationTextString,
+      alternatives,
+    };
+
+    await (existingContent
+      ? ctx.db.patch(existingContent._id, contentData)
+      : ctx.db.insert('questionContent', { questionId: id, ...contentData }));
+
+    return true;
   },
 });
 
@@ -173,9 +297,10 @@ export const listAll = query({
 });
 
 export const getMany = query({
-  args: { ids: v.array(v.id("questions")) },
+  args: { ids: v.array(v.id('questions')) },
   handler: async (ctx, args) => {
-    const questions = await Promise.all(args.ids.map((id) => ctx.db.get(id)));
+    // Use batch helper to get questions with content
+    const questions = await getManyQuestionsWithContent(ctx, args.ids);
     return questions;
   },
 });
@@ -207,8 +332,18 @@ export const countQuestionsByMode = query({
 });
 
 export const deleteQuestion = mutation({
-  args: { id: v.id("questions") },
+  args: { id: v.id('questions') },
   handler: async (ctx, args) => {
+    // First delete the content from questionContent table
+    const content = await ctx.db
+      .query('questionContent')
+      .withIndex('by_question', (q) => q.eq('questionId', args.id))
+      .unique();
+
+    if (content) {
+      await ctx.db.delete(content._id);
+    }
+
     // Then delete the question itself using the helper function
     const success = await _internalDeleteQuestion(ctx, args.id);
     return success;
@@ -386,17 +521,19 @@ export const renumberAllQuestions = mutation({
       questions.sort((a, b) => a._creationTime - b._creationTime);
 
       // Assign sequential numbers
-      for (let i = 0; i < questions.length; i++) {
-        const newNumber = (i + 1).toString().padStart(3, '0');
+      let sequenceNumber = 1;
+      for (const question of questions) {
+        const newNumber = sequenceNumber.toString().padStart(3, '0');
         const newCode = `${prefix} ${newNumber}`;
-        
+
         // Only update if the code is different
-        if (questions[i].questionCode !== newCode) {
-          await ctx.db.patch(questions[i]._id, {
+        if (question.questionCode !== newCode) {
+          await ctx.db.patch(question._id, {
             questionCode: newCode,
           });
           updatedCount++;
         }
+        sequenceNumber++;
       }
     }
 
